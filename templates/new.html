@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html class="light" lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>따뜻한 저널 — 글쓰기</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background-color: #fff8f5;
+        -webkit-font-smoothing: antialiased;
+      }
+    </style>
+  </head>
+  <body class="font-['Be_Vietnam_Pro'] text-[#1e1b18]">
+    <header class="fixed top-0 left-0 right-0 z-40 border-b border-stone-200/60 bg-[#f5f2ed]/95 backdrop-blur">
+      <div class="mx-auto flex w-full max-w-[1120px] items-center justify-between px-6 py-4">
+        <a href="{{ url_for('post_list') }}" class="text-xl font-bold italic">따뜻한 저널</a>
+        <nav class="hidden items-center gap-6 md:flex">
+          <a href="{{ url_for('post_list') }}" class="text-stone-500 hover:text-stone-700">읽기</a>
+          <a href="{{ url_for('post_create') }}" class="border-b-2 border-[#1e1b18] pb-1 font-semibold">쓰기</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="mx-auto mt-20 flex min-h-screen max-w-[720px] flex-col px-6 py-12">
+      <h1 class="mb-8 text-5xl font-bold leading-tight">새 글 쓰기</h1>
+
+      {% if error %}
+      <div class="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{{ error }}</div>
+      {% endif %}
+
+      <form method="post" class="flex flex-1 flex-col gap-6">
+        <div>
+          <label for="title" class="mb-2 block text-sm font-semibold text-stone-600">제목</label>
+          <input
+            id="title"
+            name="title"
+            type="text"
+            value="{{ title_value }}"
+            class="w-full rounded-xl border border-stone-200 bg-[#fbf2ed] px-4 py-3 outline-none focus:border-stone-400"
+            placeholder="제목을 입력하세요"
+          />
+        </div>
+
+        <div class="flex-1">
+          <label for="content" class="mb-2 block text-sm font-semibold text-stone-600">내용</label>
+          <textarea
+            id="content"
+            name="content"
+            rows="14"
+            class="h-full min-h-[420px] w-full rounded-xl border border-stone-200 bg-[#fbf2ed] px-4 py-3 outline-none focus:border-stone-400"
+            placeholder="내용을 입력하세요"
+          >{{ content_value }}</textarea>
+        </div>
+
+        <div class="flex items-center gap-4 border-t border-stone-200 pt-6">
+          <button
+            type="submit"
+            class="rounded-full bg-[#5f5e5b] px-6 py-3 text-xs font-bold tracking-widest text-white hover:opacity-90"
+          >
+            저장하기
+          </button>
+          <a href="{{ url_for('post_list') }}" class="text-sm text-stone-500 hover:text-stone-700">취소</a>
+        </div>
+      </form>
+    </main>
+  </body>
+</html>
