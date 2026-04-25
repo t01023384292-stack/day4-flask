@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: day4-flask-board
+    runtime: python
+    rootDir: board_flask_sqlite
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: DATABASE_PATH
+        value: /var/data/board.db
+    disk:
+      name: board-data
+      mountPath: /var/data
+      sizeGB: 1

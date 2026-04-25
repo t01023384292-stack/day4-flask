@@ -1,3 +1,4 @@
+import os
 import sqlite3
 from datetime import datetime
 from pathlib import Path
@@ -5,12 +6,13 @@ from pathlib import Path
 from flask import Flask, abort, redirect, render_template, request, url_for
 
 BASE_DIR = Path(__file__).resolve().parent
-DB_PATH = BASE_DIR / "board.db"
+DB_PATH = Path(os.getenv("DATABASE_PATH", str(BASE_DIR / "board.db")))
 
 app = Flask(__name__)
 
 
 def get_db_connection() -> sqlite3.Connection:
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
