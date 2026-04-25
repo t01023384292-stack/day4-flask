@@ -91,7 +91,65 @@ def post_create():
         error=error,
         title_value=title_value,
         content_value=content_value,
+        page_title="글쓰기",
+        form_title="새 글 쓰기",
+        submit_label="저장하기",
+        form_action=url_for("post_create"),
+        cancel_url=url_for("post_list"),
     )
+
+
+@app.route("/posts/<int:post_id>/edit", methods=["GET", "POST"])
+def post_edit(post_id: int):
+    with get_db_connection() as conn:
+        post = conn.execute(
+            "SELECT id, title, content, created_at FROM posts WHERE id = ?",
+            (post_id,),
+        ).fetchone()
+
+    if post is None:
+        abort(404)
+
+    error = None
+    title_value = post["title"]
+    content_value = post["content"]
+
+    if request.method == "POST":
+        title_value = request.form.get("title", "").strip()
+        content_value = request.form.get("content", "").strip()
+
+        if not title_value or not content_value:
+            error = "제목과 내용을 모두 입력해 주세요."
+        else:
+            with get_db_connection() as conn:
+                conn.execute(
+                    "UPDATE posts SET title = ?, content = ? WHERE id = ?",
+                    (title_value, content_value, post_id),
+                )
+            return redirect(url_for("post_detail", post_id=post_id))
+
+    return render_template(
+        "new.html",
+        error=error,
+        title_value=title_value,
+        content_value=content_value,
+        page_title="글수정",
+        form_title="글 수정하기",
+        submit_label="수정하기",
+        form_action=url_for("post_edit", post_id=post_id),
+        cancel_url=url_for("post_detail", post_id=post_id),
+    )
+
+
+@app.route("/posts/<int:post_id>/delete", methods=["POST"])
+def post_delete(post_id: int):
+    with get_db_connection() as conn:
+        cursor = conn.execute("DELETE FROM posts WHERE id = ?", (post_id,))
+
+    if cursor.rowcount == 0:
+        abort(404)
+
+    return redirect(url_for("post_list"))
 
 
 @app.errorhandler(404)

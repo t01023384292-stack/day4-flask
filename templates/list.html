@@ -41,7 +41,7 @@
             <a href="{{ url_for('post_create') }}" class="text-stone-500 hover:text-stone-700">쓰기</a>
           </nav>
         </div>
-        <a href="{{ url_for('post_create') }}" class="rounded-full bg-primary px-5 py-2 text-xs font-bold tracking-widest text-white">
+        <a href="{{ url_for('post_create') }}" class="inline-flex items-center rounded-full bg-[#5f5e5b] px-4 py-2 text-xs font-bold tracking-widest text-white transition hover:opacity-90">
           새 글
         </a>
       </div>
@@ -57,7 +57,7 @@
             <p class="mb-6 text-base leading-relaxed text-stone-700">
               {{ posts[0].content[:220] }}{% if posts[0].content|length > 220 %}...{% endif %}
             </p>
-            <a href="{{ url_for('post_detail', post_id=posts[0].id) }}" class="inline-flex items-center rounded-full bg-primary px-6 py-3 text-xs font-bold tracking-widest text-white">
+            <a href="{{ url_for('post_detail', post_id=posts[0].id) }}" class="inline-flex items-center rounded-full bg-[#5f5e5b] px-6 py-3 text-xs font-bold tracking-widest text-white transition hover:opacity-90">
               글 읽기
             </a>
           </div>
@@ -88,7 +88,7 @@
         {% if posts|length <= 1 %}
         <article class="rounded-xl border border-stone-200/70 bg-[#fbf2ed] p-6 md:col-span-2">
           <p class="text-base text-stone-700">아직 게시글이 없습니다. 첫 글을 작성해 보세요.</p>
-          <a href="{{ url_for('post_create') }}" class="mt-4 inline-block text-sm font-semibold text-muted">글쓰기 화면으로 이동 →</a>
+          <a href="{{ url_for('post_create') }}" class="mt-4 inline-flex items-center rounded-full border border-stone-300 bg-white/70 px-4 py-2 text-xs font-bold tracking-widest text-stone-600 transition hover:bg-stone-100">글쓰기 화면으로 이동</a>
         </article>
         {% endif %}
       </section>

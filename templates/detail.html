@@ -41,7 +41,13 @@
     <main class="mx-auto max-w-[720px] px-6 py-14">
       <div class="mb-8 flex items-center justify-between">
         <a href="{{ url_for('post_list') }}" class="text-sm font-semibold text-[#6b5c4c]">← 목록으로</a>
-        <a href="{{ url_for('post_create') }}" class="rounded-full border border-stone-300 px-4 py-2 text-xs font-bold tracking-widest text-stone-600">새 글 쓰기</a>
+        <div class="flex flex-wrap items-center gap-2">
+          <a href="{{ url_for('post_edit', post_id=post.id) }}" class="inline-flex items-center rounded-full border border-stone-300 bg-white/70 px-4 py-2 text-xs font-bold tracking-widest text-stone-700 transition hover:bg-stone-100">수정</a>
+          <form method="post" action="{{ url_for('post_delete', post_id=post.id) }}" onsubmit="return confirm('정말 삭제할까요?')">
+            <button type="submit" class="inline-flex items-center rounded-full border border-red-300 bg-red-50 px-4 py-2 text-xs font-bold tracking-widest text-red-700 transition hover:bg-red-100">삭제</button>
+          </form>
+          <a href="{{ url_for('post_create') }}" class="inline-flex items-center rounded-full bg-[#5f5e5b] px-4 py-2 text-xs font-bold tracking-widest text-white transition hover:opacity-90">새 글 쓰기</a>
+        </div>
       </div>
 
       <article>

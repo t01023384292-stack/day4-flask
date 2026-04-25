@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>따뜻한 저널 — 글쓰기</title>
+    <title>따뜻한 저널 — {{ page_title | default('글쓰기') }}</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link
       href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
@@ -28,13 +28,13 @@
     </header>
 
     <main class="mx-auto mt-20 flex min-h-screen max-w-[720px] flex-col px-6 py-12">
-      <h1 class="mb-8 text-5xl font-bold leading-tight">새 글 쓰기</h1>
+      <h1 class="mb-8 text-5xl font-bold leading-tight">{{ form_title | default('새 글 쓰기') }}</h1>
 
       {% if error %}
       <div class="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{{ error }}</div>
       {% endif %}
 
-      <form method="post" class="flex flex-1 flex-col gap-6">
+      <form method="post" action="{{ form_action | default(url_for('post_create')) }}" class="flex flex-1 flex-col gap-6">
         <div>
           <label for="title" class="mb-2 block text-sm font-semibold text-stone-600">제목</label>
           <input
@@ -63,9 +63,9 @@
             type="submit"
             class="rounded-full bg-[#5f5e5b] px-6 py-3 text-xs font-bold tracking-widest text-white hover:opacity-90"
           >
-            저장하기
+            {{ submit_label | default('저장하기') }}
           </button>
-          <a href="{{ url_for('post_list') }}" class="text-sm text-stone-500 hover:text-stone-700">취소</a>
+          <a href="{{ cancel_url | default(url_for('post_list')) }}" class="inline-flex items-center rounded-full border border-stone-300 bg-white/70 px-4 py-2 text-xs font-bold tracking-widest text-stone-600 transition hover:bg-stone-100">취소</a>
         </div>
       </form>
     </main>
