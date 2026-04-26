@@ -68,13 +68,43 @@
 
       <section class="mb-8 flex items-end justify-between">
         <h2 class="text-3xl font-semibold">최근 기록</h2>
-        <p class="text-sm text-stone-500">총 {{ posts|length }}개</p>
+        <p class="text-sm text-stone-500">총 {{ total }}개</p>
+      </section>
+
+      <section class="mb-8">
+        <form method="get" action="{{ url_for('post_list') }}" class="flex gap-3">
+          <input type="hidden" name="sort" value="{{ sort }}" />
+          <input
+            type="text"
+            name="q"
+            value="{{ q }}"
+            placeholder="제목 또는 내용으로 검색"
+            class="flex-1 rounded-full border border-stone-300 bg-white/80 px-5 py-2.5 text-sm outline-none transition focus:border-stone-400 focus:ring-2 focus:ring-stone-200"
+          />
+          <button type="submit" class="inline-flex items-center rounded-full bg-[#5f5e5b] px-5 py-2.5 text-xs font-bold tracking-widest text-white transition hover:opacity-90">검색</button>
+          {% if q %}
+          <a href="{{ url_for('post_list', sort=sort) }}" class="inline-flex items-center rounded-full border border-stone-300 bg-white/70 px-5 py-2.5 text-xs font-bold tracking-widest text-stone-600 transition hover:bg-stone-100">취소</a>
+          {% endif %}
+        </form>
+      </section>
+
+      <section class="mb-8 flex items-center justify-end gap-3">
+        <label for="sort-select" class="text-xs font-bold uppercase tracking-[0.15em] text-stone-500">정렬</label>
+        <select id="sort-select" onchange="location.href=this.value" class="rounded-full border border-stone-300 bg-white/80 px-4 py-2 text-sm outline-none transition focus:border-stone-400">
+          <option value="{{ url_for('post_list', sort='latest', q=q) }}" {{ 'selected' if sort == 'latest' }}>최신순</option>
+          <option value="{{ url_for('post_list', sort='oldest', q=q) }}" {{ 'selected' if sort == 'oldest' }}>오래된순</option>
+          <option value="{{ url_for('post_list', sort='views', q=q) }}" {{ 'selected' if sort == 'views' }}>많이 본 순</option>
+        </select>
       </section>
 
       <section class="grid grid-cols-1 gap-8 md:grid-cols-2">
-        {% for post in posts[1:] if posts|length > 1 %}
+        {% for post in posts %}
         <article class="rounded-xl border border-stone-200/70 bg-[#fbf2ed] p-6">
-          <p class="mb-2 text-xs font-bold uppercase tracking-[0.15em] text-stone-500">{{ post.created_at }}</p>
+          <div class="mb-2 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.15em] text-stone-500">
+            <span>{{ post.created_at }}</span>
+            <span class="text-stone-400">|</span>
+            <span>조회 {{ post.views }}</span>
+          </div>
           <h3 class="mb-3 text-2xl font-semibold leading-snug">
             <a href="{{ url_for('post_detail', post_id=post.id) }}" class="hover:text-primary">{{ post.title }}</a>
           </h3>
@@ -85,13 +115,31 @@
         </article>
         {% endfor %}
 
-        {% if posts|length <= 1 %}
+        {% if not posts %}
         <article class="rounded-xl border border-stone-200/70 bg-[#fbf2ed] p-6 md:col-span-2">
           <p class="text-base text-stone-700">아직 게시글이 없습니다. 첫 글을 작성해 보세요.</p>
           <a href="{{ url_for('post_create') }}" class="mt-4 inline-flex items-center rounded-full border border-stone-300 bg-white/70 px-4 py-2 text-xs font-bold tracking-widest text-stone-600 transition hover:bg-stone-100">글쓰기 화면으로 이동</a>
         </article>
         {% endif %}
       </section>
+
+      {% if total_pages > 1 %}
+      <nav class="mt-12 flex items-center justify-center gap-4">
+        {% if page == 1 %}
+        <span class="inline-flex items-center rounded-full border border-stone-200 bg-stone-100 px-5 py-2 text-xs font-bold tracking-widest text-stone-400 cursor-not-allowed">이전</span>
+        {% else %}
+        <a href="{{ url_for('post_list', page=page-1, q=q, sort=sort) }}" class="inline-flex items-center rounded-full border border-stone-300 bg-white/70 px-5 py-2 text-xs font-bold tracking-widest text-stone-600 transition hover:bg-stone-100">이전</a>
+        {% endif %}
+
+        <span class="text-sm font-medium text-stone-600">{{ page }} / {{ total_pages }}</span>
+
+        {% if page == total_pages %}
+        <span class="inline-flex items-center rounded-full border border-stone-200 bg-stone-100 px-5 py-2 text-xs font-bold tracking-widest text-stone-400 cursor-not-allowed">다음</span>
+        {% else %}
+        <a href="{{ url_for('post_list', page=page+1, q=q, sort=sort) }}" class="inline-flex items-center rounded-full border border-stone-300 bg-white/70 px-5 py-2 text-xs font-bold tracking-widest text-stone-600 transition hover:opacity-90 hover:bg-stone-100">다음</a>
+        {% endif %}
+      </nav>
+      {% endif %}
     </main>
   </body>
 </html>

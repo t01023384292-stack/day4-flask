@@ -3,6 +3,8 @@ import sqlite3
 from datetime import datetime
 from pathlib import Path
 
+import math
+
 from flask import Flask, abort, redirect, render_template, request, url_for
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -26,10 +28,15 @@ def init_db() -> None:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT NOT NULL,
                 content TEXT NOT NULL,
-                created_at TEXT NOT NULL
+                created_at TEXT NOT NULL,
+                views INTEGER NOT NULL DEFAULT 0
             )
             """
         )
+        # 기존 테이블에 views 컬럼이 없으면 추가
+        cols = [row[1] for row in conn.execute("PRAGMA table_info(posts)").fetchall()]
+        if "views" not in cols:
+            conn.execute("ALTER TABLE posts ADD COLUMN views INTEGER NOT NULL DEFAULT 0")
         count = conn.execute("SELECT COUNT(*) FROM posts").fetchone()[0]
         if count == 0:
             now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -45,20 +52,65 @@ def init_db() -> None:
             )
 
 
+PER_PAGE = 10
+
+SORT_OPTIONS = {
+    "latest": "id DESC",
+    "oldest": "id ASC",
+    "views": "views DESC, id DESC",
+}
+
+
 @app.route("/")
-def post_list():
+@app.route("/page/<int:page>")
+def post_list(page=1):
+    q = request.args.get("q", "").strip()
+    sort = request.args.get("sort", "latest")
+    if sort not in SORT_OPTIONS:
+        sort = "latest"
+    order_by = SORT_OPTIONS[sort]
+
     with get_db_connection() as conn:
-        posts = conn.execute(
-            "SELECT id, title, content, created_at FROM posts ORDER BY id DESC"
-        ).fetchall()
-    return render_template("list.html", posts=posts)
+        if q:
+            like = f"%{q}%"
+            total = conn.execute(
+                "SELECT COUNT(*) FROM posts WHERE title LIKE ? OR content LIKE ?",
+                (like, like),
+            ).fetchone()[0]
+            total_pages = max(1, math.ceil(total / PER_PAGE))
+            page = max(1, min(page, total_pages))
+            offset = (page - 1) * PER_PAGE
+            posts = conn.execute(
+                f"SELECT id, title, content, created_at, views FROM posts WHERE title LIKE ? OR content LIKE ? ORDER BY {order_by} LIMIT ? OFFSET ?",
+                (like, like, PER_PAGE, offset),
+            ).fetchall()
+        else:
+            total = conn.execute("SELECT COUNT(*) FROM posts").fetchone()[0]
+            total_pages = max(1, math.ceil(total / PER_PAGE))
+            page = max(1, min(page, total_pages))
+            offset = (page - 1) * PER_PAGE
+            posts = conn.execute(
+                f"SELECT id, title, content, created_at, views FROM posts ORDER BY {order_by} LIMIT ? OFFSET ?",
+                (PER_PAGE, offset),
+            ).fetchall()
+
+    return render_template(
+        "list.html",
+        posts=posts,
+        page=page,
+        total_pages=total_pages,
+        total=total,
+        q=q,
+        sort=sort,
+    )
 
 
 @app.route("/posts/<int:post_id>")
 def post_detail(post_id: int):
     with get_db_connection() as conn:
+        conn.execute("UPDATE posts SET views = views + 1 WHERE id = ?", (post_id,))
         post = conn.execute(
-            "SELECT id, title, content, created_at FROM posts WHERE id = ?",
+            "SELECT id, title, content, created_at, views FROM posts WHERE id = ?",
             (post_id,),
         ).fetchone()
     if post is None:
